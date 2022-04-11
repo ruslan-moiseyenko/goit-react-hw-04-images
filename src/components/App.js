@@ -100,7 +100,7 @@ class App extends Component {
         <SearchBar onSubmit={this.onSearchSubmit} />
         {idle && <h3>Enter what you want to find</h3>}
         {resolved && <ImageGallery images={this.state.images} showModal={this.toggleModal} onImageClick={this.onImageClick} />}
-        {panding && <Modal >
+        {panding && <Modal Modal onClose={this.toggleModal} >
           <RotatingLines width="100" />
         </Modal>}
         {images.length ? <MoreImagesButton onClick={this.onButtonClick} /> : null}
