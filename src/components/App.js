@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RotatingLines } from 'react-loader-spinner'
 import SearchBar from './searchbar/Searchbar.js';
 import ImageGallery from './imageGallery/Imagegallery.js';
@@ -18,97 +18,104 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
+  const [firstRender, setFirstRender] = useState(true);
 
   const onSearchSubmit = (newURL) => {
     setUrl(newURL);
     setPage(1);
-    setTimeout(() => {
-      fetchImages(url + `&page=${page}`);
-    });
+    // setTimeout(() => {
+    //   fetchImages(url + `&page=${page}`);
+    // });
 
   }
 
-  const fetchImages = (url) => {
-    setIdle(false);
-    setPandidng(true);
-    setRejected(false);
+  // const fetchImages1 = (url) => {
+  //   setIdle(false);
+  //   setPandidng(true);
+  //   setRejected(false);
 
-    fetch(url)
-      .then((response) => {
-        console.log(response);
-        if (!response.ok) {
-          console.log("SOME ERROR");
+  //   fetch(url)
+  //     .then((response) => {
+  //       console.log(response);
+  //       if (!response.ok) {
+  //         console.log("SOME ERROR");
+  //         setError('Something went wrong');
+  //         setPandidng(false);
+  //         setRejected(true);
+  //         throw new Error(response.statusText);
+  //       }
+  //       console.log(response.json());
+  //       return response.json();
+  //     })
+  //     .then(data => {
+  //       console.log('logging data from second THEN ', data);
+  //       if (data.hits.length === 0) {
+  //         setPandidng(false);
+  //         setRejected(true);
+  //         setResolved(false);
+  //         setError('No images were found');
+
+  //       } else {
+  //         setImages((images) => [...images, ...data.hits]);
+  //         setPandidng(false);
+  //         setResolved(true);
+  //       }
+  //     })
+  //     .catch(err => {
+  //       console.log(err);
+  //       setRejected(true);
+  //       setError(err);
+  //     });
+  // }
+
+  useEffect(() => {
+    if (firstRender) {
+      setFirstRender(false);
+      return;
+    }
+    async function fetchImages(url) {
+      setIdle(false);
+      setPandidng(true);
+      setRejected(false);
+
+      try {
+        const response = await fetch(url);
+        console.log('this is response: ', response);
+        if (response.ok) {
+          const data = await response.json();
+          console.log('data is: ', data);
+          if (data.hits.length === 0) {
+            setPandidng(false);
+            setRejected(true);
+            setResolved(false);
+            setError('No images were found');
+
+          } else {
+            setImages((images) => [...images, ...data.hits]);
+            setPandidng(false);
+            setResolved(true);
+
+          }
+        } else {
           setError('Something went wrong');
           setPandidng(false);
           setRejected(true);
-          throw new Error(response.statusText);
         }
-        console.log(response.json());
-        return response.json();
-      })
-      .then(data => {
-        console.log('logging data from second THEN ', data);
-        if (data.hits.length === 0) {
-          setPandidng(false);
-          setRejected(true);
-          setResolved(false);
-          setError('No images were found');
 
-        } else {
-          setImages((images) => [...images, ...data.hits]);
-          setPandidng(false);
-          setResolved(true);
-        }
-      })
-      .catch(err => {
-        console.log(err);
+      } catch (err) {
+        console.log(err.message);
         setRejected(true);
         setError(err);
-      });
-  }
-
-
-  const fetchImages1 = async (url) => {
-    setIdle(false);
-    setPandidng(true);
-    setRejected(false);
-
-    try {
-      const response = await fetch(url);
-      console.log('this is response: ', response);
-      if (response.ok) {
-        const data = await response.json();
-        console.log('data is: ', data);
-        if (data.hits.length === 0) {
-          setPandidng(false);
-          setRejected(true);
-          setResolved(false);
-          setError('No images were found');
-
-        } else {
-          setImages((images) => [...images, ...data.hits]);
-          setPandidng(false);
-          setResolved(true);
-
-        }
-      } else {
-        setError('Something went wrong');
-        setPandidng(false);
-        setRejected(true);
       }
-
-    } catch (err) {
-      console.log(err.message);
-      setRejected(true);
-      setError(err);
     }
-  }
+    fetchImages(url);
+  }, [url, page]);
 
   const onButtonClick = () => {
     setPage(page + 1);
-    setTimeout(() => {
-      fetchImages(url + `&page=${page}`);
-    });
+    // setTimeout(() => {
+    //   fetchImages(url + `&page=${page}`);
+    // });
   }
 
   const onImageClick = (imageURL) => {
@@ -121,19 +128,20 @@ export default function App() {
   }
 
 
+
   return (
     <>
       <SearchBar onSubmit={onSearchSubmit} />
       {idle && <h3>Enter what you want to find</h3>}
       {resolved && <ImageGallery images={images} showModal={toggleModal} onImageClick={onImageClick} />}
-      {/* {panding && <Modal onClose={toggleModal} >
+      {panding && <Modal onClose={toggleModal} >
         <RotatingLines width="100" />
       </Modal>}
       {images.length ? <MoreImagesButton onClick={onButtonClick} /> : null}
       {rejected && <h3>{error}</h3>}
       {showModal && <Modal onClose={toggleModal}>
         <ModalImage src={modalContent} alt="bigImage" />
-      </Modal>} */}
+      </Modal>}
     </>
   );
 
