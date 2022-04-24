@@ -12,7 +12,7 @@ export default function SearchBar({ onSubmit }) {
   const searchHandler = (e) => {
     e.preventDefault();
     let normalizedQuery = searchQuery.trim().toLowerCase().split(' ').join('+');
-    onSubmit(baseURL + 'q=' + normalizedQuery);
+    onSubmit(baseURL, normalizedQuery);
 
   }
 
