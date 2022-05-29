@@ -20,6 +20,7 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const firstRender = useRef(true);
+  const totalHits = useRef(0);
 
   const onSearchSubmit = (newUrl, newQuery) => {
     if (query !== newQuery) {
@@ -54,14 +55,8 @@ export default function App() {
             setImages(images => images.concat(data.hits));
             setPendidng(false);
             setResolved(true);
-            if (data.hits.length === 20 && data.totalHits > images.length) {
-              setShowMoreBtn(true);
-            } else if (
-              data.hits.length < 20 ||
-              data.totalHits <= images.length
-            ) {
-              setShowMoreBtn(false);
-            }
+            setShowMoreBtn(true);
+            totalHits.current = data.totalHits;
           }
         } else {
           setError('Something went wrong');
@@ -107,7 +102,9 @@ export default function App() {
           <RotatingLines width="100" />
         </Modal>
       )}
-      {showMoreBtn && <MoreImagesButton onClick={onButtonClick} />}
+      {showMoreBtn && images.length < totalHits.current && (
+        <MoreImagesButton onClick={onButtonClick} />
+      )}
       {rejected && <h3>{error}</h3>}
       {showModal && (
         <Modal onClose={toggleModal}>
