@@ -48,15 +48,18 @@ export default function App() {
             setPendidng(false);
             setRejected(true);
             setResolved(false);
+            setShowMoreBtn(false);
             setError('No images were found');
           } else {
-            // setImages(images => [...images, ...data.hits]);
             setImages(images => images.concat(data.hits));
             setPendidng(false);
             setResolved(true);
-            if (data.hits.length === 20) {
+            if (data.hits.length === 20 && data.totalHits > images.length) {
               setShowMoreBtn(true);
-            } else if (data.hits.length < 20) {
+            } else if (
+              data.hits.length < 20 ||
+              data.totalHits <= images.length
+            ) {
               setShowMoreBtn(false);
             }
           }
