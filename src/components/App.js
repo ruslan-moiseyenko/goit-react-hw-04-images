@@ -11,7 +11,6 @@ export default function App() {
   const [pending, setPendidng] = useState(false);
   const [rejected, setRejected] = useState(false);
   const [resolved, setResolved] = useState(false);
-  const [showMoreBtn, setShowMoreBtn] = useState(false);
   const [error, setError] = useState(null);
   const [images, setImages] = useState([]);
   const [url, setUrl] = useState('');
@@ -20,7 +19,7 @@ export default function App() {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const firstRender = useRef(true);
-  const totalHits = useRef(0);
+  const [totalHits, setTotalHits] = useState(0);
 
   const onSearchSubmit = (newUrl, newQuery) => {
     if (query !== newQuery) {
@@ -49,14 +48,12 @@ export default function App() {
             setPendidng(false);
             setRejected(true);
             setResolved(false);
-            setShowMoreBtn(false);
             setError('No images were found');
           } else {
             setImages(images => images.concat(data.hits));
             setPendidng(false);
             setResolved(true);
-            setShowMoreBtn(true);
-            totalHits.current = data.totalHits;
+            setTotalHits(data.totalHits);
           }
         } else {
           setError('Something went wrong');
@@ -67,7 +64,6 @@ export default function App() {
         console.log(err.message);
         setRejected(true);
         setError(err);
-        setShowMoreBtn(false);
       }
     }
     fetchImages(url + `&page=${page}`);
@@ -102,7 +98,7 @@ export default function App() {
           <RotatingLines width="100" />
         </Modal>
       )}
-      {showMoreBtn && images.length < totalHits.current && (
+      {images.length < totalHits && (
         <MoreImagesButton onClick={onButtonClick} />
       )}
       {rejected && <h3>{error}</h3>}
